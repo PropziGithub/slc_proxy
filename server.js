@@ -1,6 +1,8 @@
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const cors = require("cors");
+const { config } = require("dotenv");
+config();
 
 const app = express();
 
@@ -31,8 +33,8 @@ proxyRoutes.forEach(({ route, target }) => {
       pathRewrite: {
         [`^${route}`]: "",
       },
-      onProxyReq(proxyReq, req, res) {
-        proxyReq.setHeader("Origin", "http://localhost:3001");
+      onProxyReq(proxyReq, req, res) {        
+        proxyReq.setHeader("Origin", process.env.ALLOWED_ORIGINS);
       },
       onProxyRes(proxyRes, req, res) {
         res.headers["Access-Control-Allow-Origin"] = "*";
@@ -44,8 +46,7 @@ proxyRoutes.forEach(({ route, target }) => {
     })
   );
 });
-
-const PORT = 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Proxy server is running on http://localhost:${PORT}`);
 });
